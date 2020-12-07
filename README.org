@@ -1,4 +1,4 @@
-#+TITLE: Tims Haskell Config
+#+TITLE: Tims XMonad Config
 
 After living in dwm for quite a long time, [[https://www.youtube.com/channel/UCVls1GmFKf6WlTraIb_IaJg][DistroTube]] got me interested in XMonad, Haskell and functional programming altogether.
 
