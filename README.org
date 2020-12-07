@@ -1,0 +1,9 @@
+#+TITLE: Tims Haskell Config
+
+After living in dwm for quite a long time, [[https://www.youtube.com/channel/UCVls1GmFKf6WlTraIb_IaJg][DistroTube]] got me interested in XMonad, Haskell and functional programming altogether.
+
+This repository shares the config i'm currently using. I hope, that i can keep it up to date.
+
+Note, that the file =EqualSpacing.hs= is work of [[https://github.com/egasimus][egaismus]] and wasn't written by myself. I work under Arch Linux and have the packages =xmonad-git= and =xmonad-contrib-git= installed in order to live on the bleeding edge as easily as possible. The files are formatted using [[https://hackage.haskell.org/package/brittany][brittany]]. I try to right the things correctly, but keep in mind, that i've only just begun working with functional programming languages and Haskell in particular.
+
+If you have any tips of improvement, please reach out to me.
