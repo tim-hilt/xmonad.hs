@@ -1,15 +1,11 @@
-cabal-version:  2.2
+cabal-version:  >= 2.2
 name:           xmonad
 version:        0.1
 
 executable xmonad
   main-is: xmonad.hs
-  hs-source-dirs:
-    .
-    lib
-  other-modules:
-    XMonad.Layout.EqualSpacing
-  build-depends:
-    xmonad
-    xmonad-contrib
-    -- add other dependencies.
+  hs-source-dirs:    .
+                   , lib
+  other-modules:     XMonad.Layout.EqualSpacing
+  build-depends:     xmonad
+                   , xmonad-contrib
