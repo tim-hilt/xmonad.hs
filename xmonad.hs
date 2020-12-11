@@ -74,10 +74,10 @@ instance Eq a => DecorationStyle SideDecoration a where
 myLayouts =
   -- decoration shrinkText standardTheme (SideDecoration D)
   equalSpacing 60 6 0 1 (Tall 1 (3 / 100) (1 / 2))
-    ||| equalSpacing 60 6 0 1 (emptyBSP)
+    -- ||| equalSpacing 60 6 0 1 (Mirror (Tall 1 (3 / 100) (1 / 2)))
     ||| equalSpacing 60 0 0 1 (Full)
+    ||| equalSpacing 60 6 0 1 (emptyBSP)
     ||| equalSpacing 60 6 0 1 (spiral (6 / 7))
-    ||| equalSpacing 60 6 0 1 (Mirror (Tall 1 (3 / 100) (1 / 2)))
 
 myKeys =
   [ ((myModMask, xK_Return)              , spawn myTerminal)
