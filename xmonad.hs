@@ -2,7 +2,7 @@
 -- Author: Tim Hilt
 -- Date created: 2020-04-12
 
-{-# LANGUAGE MultiParamTypeClasses, FlexibleInstances #-}
+{-# LANGUAGE MultiParamTypeClasses, FlexibleInstances, DeriveDataTypeable #-}
 
 -- Installed modules
 import           XMonad
@@ -11,16 +11,73 @@ import           XMonad.Layout.BinarySpacePartition
 import           XMonad.Layout.Decoration
 import           XMonad.Layout.NoBorders
 import           XMonad.Util.EZConfig           ( additionalKeys )
-import           XMonad.Util.Types
 import           XMonad.Hooks.EwmhDesktops
 import           Graphics.X11.ExtraTypes.XF86
-import           Graphics.X11
+import           Control.Arrow                  ( second )
 
 -- Qualified local imports
 import qualified XMonad.StackSet               as W
 
--- Local modules
-import           XMonad.Layout.EqualSpacing
+equalSpacing
+  :: Int -> Int -> Rational -> Int -> l a -> ModifiedLayout EqualSpacing l a
+equalSpacing gap add mult min = ModifiedLayout (EqualSpacing gap add mult min)
+
+
+data EqualSpacingMsg = MoreSpacing Int | LessSpacing Int deriving (Typeable)
+
+
+instance Message EqualSpacingMsg
+
+data EqualSpacing a = EqualSpacing
+  { gap  :: Int
+  , add  :: Int
+  , mult :: Rational
+  , min  :: Int
+  }
+  deriving Read
+
+
+instance Show (EqualSpacing a) where
+  show (EqualSpacing g a _ m) =
+    "EqualSpacing " ++ show g ++ " " ++ show a ++ " " ++ show m
+
+
+instance LayoutModifier EqualSpacing a where
+
+  modifierDescription = show
+
+  modifyLayout eqsp workspace screen = runLayout workspace
+    $ shrinkScreen eqsp ((length $ W.integrate' $ W.stack workspace) - 1) screen
+
+  pureModifier eqsp _ stck windows =
+    ( map (second $ shrinkWindow eqsp ((length $ W.integrate' stck) - 1)) windows
+    , Nothing
+    )
+
+  pureMess eqsp msg
+    | Just (MoreSpacing d) <- fromMessage msg = Just
+    $ eqsp { gap = (d + (fi $ gap eqsp)) }
+    | Just (LessSpacing d) <- fromMessage msg = Just
+    $ eqsp { gap = max 0 (-d + (fi $ gap eqsp)) }
+    | otherwise = Nothing
+
+
+shrinkScreen :: EqualSpacing a -> Int -> Rectangle -> Rectangle
+shrinkScreen (EqualSpacing gap add mult m) num (Rectangle x y w h) = Rectangle
+  x
+  y
+  (w - fi sp)
+  (h - fi sp)
+  where sp = max m $ gap - (num * add)
+
+
+shrinkWindow :: EqualSpacing a -> Int -> Rectangle -> Rectangle
+shrinkWindow (EqualSpacing gap add mult m) num (Rectangle x y w h) = Rectangle
+  (x + fi sp)
+  (y + fi sp)
+  (w - fi sp)
+  (h - fi sp)
+  where sp = max m $ gap - (num * add)
 
 myTerminal :: String
 myTerminal = "alacritty"
@@ -43,6 +100,7 @@ myFocusedBorderColor = "#aa0000"
 myClickJustFocuses :: Bool
 myClickJustFocuses = False
 
+standardTheme :: Theme
 standardTheme = def { activeColor         = "#ff0000"
                     , activeBorderColor   = "#ff0000"
                     , activeTextColor     = "#ff0000"
@@ -84,6 +142,7 @@ myLayouts =
     ||| equalSpacing 60 6 0 1 (emptyBSP)
     ||| equalSpacing 60 6 0 1 (spiral (6 / 7))
 
+myKeys :: [((KeyMask, KeySym), X ())]
 myKeys =
   [ ((myModMask, xK_Return)              , spawn myTerminal)
   , ((myModMask .|. shiftMask, xK_Return), windows W.shiftMaster)
