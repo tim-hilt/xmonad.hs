@@ -19,13 +19,14 @@ import           Control.Arrow                  ( second )
 -- Qualified local imports
 import qualified XMonad.StackSet               as W
 
+
+-- equalSpacing-module begins here
 equalSpacing
   :: Int -> Int -> Rational -> Int -> l a -> ModifiedLayout EqualSpacing l a
 equalSpacing gap add mult min = ModifiedLayout (EqualSpacing gap add mult min)
 
 
 data EqualSpacingMsg = MoreSpacing Int | LessSpacing Int deriving (Typeable)
-
 
 instance Message EqualSpacingMsg
 
@@ -82,6 +83,7 @@ shrinkWindow (EqualSpacing gap add mult m) num (Rectangle x y w h) = Rectangle
   (w - fi sp)
   (h - fi sp)
   where sp = max m $ gap - (num * add)
+-- equalSpacing-module ends here
 
 myTerminal :: String
 myTerminal = "alacritty"
@@ -105,38 +107,38 @@ myFocusedBorderColor = "#aa0000"
 myClickJustFocuses :: Bool
 myClickJustFocuses = False
 
-standardTheme :: Theme
-standardTheme = def { activeColor         = "#ff0000"
-                    , activeBorderColor   = "#ff0000"
-                    , activeTextColor     = "#ff0000"
-                    , inactiveBorderColor = "#ffffff"
-                    , inactiveColor       = "#ffffff"
-                    , inactiveTextColor   = "#ffffff"
-                    , urgentBorderColor   = "#ffff00"
-                    , urgentColor         = "#ffff00"
-                    , urgentTextColor     = "#ffff00"
-                    , decoWidth           = 20
-                    , decoHeight          = 20
-                    }
+-- standardTheme :: Theme
+-- standardTheme = def { activeColor         = "#ff0000"
+--                     , activeBorderColor   = "#ff0000"
+--                     , activeTextColor     = "#ff0000"
+--                     , inactiveBorderColor = "#ffffff"
+--                     , inactiveColor       = "#ffffff"
+--                     , inactiveTextColor   = "#ffffff"
+--                     , urgentBorderColor   = "#ffff00"
+--                     , urgentColor         = "#ffff00"
+--                     , urgentTextColor     = "#ffff00"
+--                     , decoWidth           = 20
+--                     , decoHeight          = 20
+--                     }
 
-data SideDecoration a = SideDecoration Direction2D
-  deriving (Show, Read)
+-- data SideDecoration a = SideDecoration Direction2D
+--   deriving (Show, Read)
 
-instance Eq a => DecorationStyle SideDecoration a where
+-- instance Eq a => DecorationStyle SideDecoration a where
 
-  shrink b (Rectangle _ _ dw dh) (Rectangle x y w h)
-    | SideDecoration U <- b = Rectangle x (y + fi dh) w (h - dh)
-    | SideDecoration R <- b = Rectangle x y (w - dw) h
-    | SideDecoration D <- b = Rectangle x y w (h - dh)
-    | SideDecoration L <- b = Rectangle (x + fi dw) y (w - dw) h
+--   shrink b (Rectangle _ _ dw dh) (Rectangle x y w h)
+--     | SideDecoration U <- b = Rectangle x (y + fi dh) w (h - dh)
+--     | SideDecoration R <- b = Rectangle x y (w - dw) h
+--     | SideDecoration D <- b = Rectangle x y w (h - dh)
+--     | SideDecoration L <- b = Rectangle (x + fi dw) y (w - dw) h
 
-  pureDecoration b dw dh _ st _ (win, Rectangle x y w h)
-    | win `elem` W.integrate st && dw < w && dh < h = Just $ case b of
-      SideDecoration U -> Rectangle x y w dh
-      SideDecoration R -> Rectangle (x + fi (w - dw)) y dw h
-      SideDecoration D -> Rectangle x (y + fi (h - dh)) w dh
-      SideDecoration L -> Rectangle x y dw h
-    | otherwise = Nothing
+--   pureDecoration b dw dh _ st _ (win, Rectangle x y w h)
+--     | win `elem` W.integrate st && dw < w && dh < h = Just $ case b of
+--       SideDecoration U -> Rectangle x y w dh
+--       SideDecoration R -> Rectangle (x + fi (w - dw)) y dw h
+--       SideDecoration D -> Rectangle x (y + fi (h - dh)) w dh
+--       SideDecoration L -> Rectangle x y dw h
+--     | otherwise = Nothing
 
 myLayouts =
   -- decoration shrinkText standardTheme (SideDecoration D)
@@ -157,6 +159,9 @@ myKeys =
   , ((0, xF86XK_AudioRaiseVolume), spawn "amixer set Master unmute 3%+ -q")
   , ((0, xF86XK_MonBrightnessDown)       , spawn "light -U 5")
   , ((0, xF86XK_MonBrightnessUp)         , spawn "light -A 5")
+  , ((0, xF86XK_AudioPlay)               , spawn "playerctl play-pause")
+  , ((0, xF86XK_AudioNext)               , spawn "playerctl next")
+  , ((0, xF86XK_AudioPrev)               , spawn "playerctl previous")
   ]
 
 main :: IO ()
