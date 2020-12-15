@@ -11,6 +11,7 @@ import           XMonad.Layout.BinarySpacePartition
 import           XMonad.Layout.Decoration
 import           XMonad.Layout.NoBorders
 import           XMonad.Util.EZConfig           ( additionalKeys )
+import           XMonad.Util.SpawnOnce
 import           XMonad.Hooks.EwmhDesktops
 import           Graphics.X11.ExtraTypes.XF86
 import           Control.Arrow                  ( second )
@@ -46,11 +47,14 @@ instance LayoutModifier EqualSpacing a where
 
   modifierDescription = show
 
-  modifyLayout eqsp workspace screen = runLayout workspace
-    $ shrinkScreen eqsp ((length $ W.integrate' $ W.stack workspace) - 1) screen
+  modifyLayout eqsp workspace screen = runLayout workspace $ shrinkScreen
+    eqsp
+    ((length $ W.integrate' $ W.stack workspace) - 1)
+    screen
 
   pureModifier eqsp _ stck windows =
-    ( map (second $ shrinkWindow eqsp ((length $ W.integrate' stck) - 1)) windows
+    ( map (second $ shrinkWindow eqsp ((length $ W.integrate' stck) - 1))
+          windows
     , Nothing
     )
 
@@ -87,9 +91,10 @@ myModMask = mod4Mask
 
 myStartup :: X ()
 myStartup = do
-  spawn "hsetroot -cover ~/dev/dwm/assets/background.jpg"
-  spawn "autorandr --change"
-  spawn "xset b off"
+  spawnOnce "hsetroot -cover ~/dev/dwm/assets/background.jpg &"
+  spawnOnce "autorandr --change &"
+  spawnOnce "xset b off &"
+  -- spawnOnce "xmobar ~/.xmonad/xmobar.config &"
 
 myNormalBorderColor :: String
 myNormalBorderColor = "#222222"
@@ -136,11 +141,11 @@ instance Eq a => DecorationStyle SideDecoration a where
 myLayouts =
   -- decoration shrinkText standardTheme (SideDecoration D)
   smartBorders
-    $   equalSpacing 60 6 0 1 (Tall 1 (3 / 100) (1 / 2))
+    $   equalSpacing 60 0 0 1 (Tall 1 (3 / 100) (1 / 2))
     -- ||| equalSpacing 60 6 0 1 (Mirror (Tall 1 (3 / 100) (1 / 2)))
     ||| equalSpacing 60 0 0 1 (Full)
-    ||| equalSpacing 60 6 0 1 (emptyBSP)
-    ||| equalSpacing 60 6 0 1 (spiral (6 / 7))
+    ||| equalSpacing 60 0 0 1 (emptyBSP)
+    ||| equalSpacing 60 0 0 1 (spiral (6 / 7))
 
 myKeys :: [((KeyMask, KeySym), X ())]
 myKeys =
@@ -160,7 +165,7 @@ main =
       xmonad
     $                ewmhFullscreen
     $                ewmh def { terminal           = myTerminal
-                              , borderWidth        = 1
+                              , borderWidth        = 2
                               , normalBorderColor  = myNormalBorderColor
                               , focusedBorderColor = myFocusedBorderColor
                               , modMask            = myModMask
