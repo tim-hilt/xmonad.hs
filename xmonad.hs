@@ -10,8 +10,10 @@ import           XMonad.Layout.Spiral
 import           XMonad.Layout.BinarySpacePartition
 import           XMonad.Layout.Decoration
 import           XMonad.Layout.NoBorders
+import           XMonad.Layout.SimplestFloat
 import           XMonad.Util.EZConfig           ( additionalKeys )
 import           XMonad.Util.SpawnOnce
+import           XMonad.Actions.GroupNavigation
 import           XMonad.Hooks.EwmhDesktops
 import           Graphics.X11.ExtraTypes.XF86
 import           Control.Arrow                  ( second )
@@ -144,16 +146,25 @@ myLayouts =
   -- decoration shrinkText standardTheme (SideDecoration D)
   smartBorders
     $   equalSpacing 60 0 0 1 (Tall 1 (3 / 100) (1 / 2))
+    ||| simplestFloat
     -- ||| equalSpacing 60 6 0 1 (Mirror (Tall 1 (3 / 100) (1 / 2)))
     ||| equalSpacing 60 0 0 1 (Full)
     ||| equalSpacing 60 0 0 1 (emptyBSP)
     ||| equalSpacing 60 0 0 1 (spiral (6 / 7))
+
+centerWindow :: Window -> X ()
+centerWindow win = do
+    (_, W.RationalRect x y w h) <- floatLocation win
+    windows $ W.float win (W.RationalRect ((1 - w) / 2) ((1 - h) / 2) w h)
+    return ()
 
 myKeys :: [((KeyMask, KeySym), X ())]
 myKeys =
   [ ((myModMask, xK_Return)              , spawn myTerminal)
   , ((myModMask .|. shiftMask, xK_Return), windows W.shiftMaster)
   , ((myModMask, xK_r)                   , spawn $ myTerminal ++ " -e ranger")
+  , ((myModMask, xK_Tab)                 , nextMatch History (return True))
+  , ((myModMask, xK_c)                   , withFocused centerWindow)
   , ((0, xF86XK_AudioMute)               , spawn "amixer set Master toggle -q")
   , ((0, xF86XK_AudioLowerVolume), spawn "amixer set Master unmute 3%- -q")
   , ((0, xF86XK_AudioRaiseVolume), spawn "amixer set Master unmute 3%+ -q")
@@ -178,5 +189,6 @@ main =
                               , startupHook        = myStartup
                               , focusFollowsMouse  = False
                               , layoutHook         = myLayouts
+                              , logHook            = historyHook
                               }
     `additionalKeys` myKeys
